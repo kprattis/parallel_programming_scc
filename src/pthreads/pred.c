@@ -1,7 +1,6 @@
 #include "pthreads_scc.h"
-#include <pthread.h>
 
-void pred(graph *g, int* frontier, int* nscc){
+void pred(int* frontier, int* nscc){
   
     int frontier_is_empty = 0;
 	int** temp;
