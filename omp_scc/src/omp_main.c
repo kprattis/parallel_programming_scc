@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
 	int* scc_arr;
 	
 	clock_gettime(CLOCK_REALTIME, &begin);
-		n_scc = omp_scc(f, &scc_arr);
+		n_scc = scc(f, &scc_arr);
 	clock_gettime(CLOCK_REALTIME, &end);
 	
     double elapsed = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;

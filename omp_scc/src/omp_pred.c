@@ -1,7 +1,8 @@
 #include "omp_scc.h"
+#include <stdlib.h>
 #include <omp.h>
 
-void omp_pred(graph *g, int* frontier, int* nscc){
+void pred(graph *g, int* frontier, int* nscc){
   
     int frontier_is_empty = 0;
 	int** temp;
@@ -17,6 +18,7 @@ void omp_pred(graph *g, int* frontier, int* nscc){
 
     while(!frontier_is_empty){
         frontier_is_empty = 1;
+
 		#pragma omp parallel for
 		for(int i = 0; i < g->n; i++){
             if(frontier[i]){
@@ -24,7 +26,7 @@ void omp_pred(graph *g, int* frontier, int* nscc){
 				int end = g->csr->ptr[i + 1];
 		   		frontier[i] = 0;
 				
-				#pragma omp parallel for
+				//#pragma omp parallel for
 				for(int j = start; j < end; j++){
 				int parent = g->csr->ind[j];
 						
