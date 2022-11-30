@@ -1,5 +1,4 @@
-#include "pthreads_scc.h"
-#include <pthread.h>
+#include "seq_scc.h"
 
 void pred(graph *g, int* frontier, int* nscc){
   

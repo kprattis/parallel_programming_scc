@@ -1,5 +1,4 @@
-#include "pthreads_scc.h"
-#include <pthread.h>
+#include "seq_scc.h"
 
 void trim(graph *g){
     int changed = 1;
