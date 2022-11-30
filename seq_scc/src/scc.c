@@ -15,24 +15,24 @@ int scc(FILE* f, int **SCC_arr){
 			Returns the number of sccs
 	*/
 
-	//
-	graph *g = init_graph(f);
 	
 	//structure to keep time for various parts of the algorithm
 	struct timespec begin, end; 
-	double elapsed[3] = {0.0};
+	double elapsed[2] = {0.0};
 
+	//init the graph
+	graph *g = init_graph(f);
 
 	int* n_scc = (int*) calloc(g->n, sizeof(int));
 	int* unique = (int*) calloc(g->n, sizeof(int));
 	int n_unique;
 	int changed_color;
 	
-	clock_gettime(CLOCK_REALTIME, &begin);
-		//trim the graph once to eliminate all trivial nodes
-		trim(g);
-	clock_gettime(CLOCK_REALTIME, &end);
-	elapsed[0] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
+	
+	//trim the graph once to eliminate all trivial nodes
+	trim(g);
+	
+	
 
 	while(!g->is_empty){
 		
@@ -53,7 +53,7 @@ int scc(FILE* f, int **SCC_arr){
 			}
 		
 		clock_gettime(CLOCK_REALTIME, &end);
-		elapsed[1] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
+		elapsed[0] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 		
 		//  First, find all unique colors and preallocate the scc Id of every group.
 		//  Next find the predecessors of the nodes whose color equals their id.
@@ -81,8 +81,10 @@ int scc(FILE* f, int **SCC_arr){
 			pred(g, unique, n_scc);
 
 		clock_gettime(CLOCK_REALTIME, &end);
-		elapsed[2] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
+		elapsed[1] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 
+
+		//check if all nodes are removed and prepare for the next iteration
 		g->is_empty = 1;
 		for(int i = 0; i < g->n; i++){
 			unique[i] = 0;
@@ -93,12 +95,12 @@ int scc(FILE* f, int **SCC_arr){
 			}
 		}
 		g->n_scc += n_unique;
+
     }
  	
 	//Print time statistics
-	printf("Trim duration:%lf\n",elapsed[0]);
-	printf("Coloring duration:%lf\n",elapsed[1]);
-	printf("PRED duration:%lf\n",elapsed[2]);
+	printf("color:%lf\n",elapsed[0]);
+	printf("pred:%lf\n",elapsed[1]);
 
 	//Create return values
 	(* SCC_arr) = (int *) malloc(g->n * sizeof(int)); 

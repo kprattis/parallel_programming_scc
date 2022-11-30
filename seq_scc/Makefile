@@ -7,7 +7,7 @@ BIN_DIR = bin
 
 COMMON = ../common
 
-OUT = $(BIN_DIR)/seq_scc.out
+OUT = $(BIN_DIR)/seq_scc
 
 INC = -I $(INC_DIR) -I $(COMMON)/$(INC_DIR)
 
