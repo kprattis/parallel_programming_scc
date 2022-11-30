@@ -1,8 +1,6 @@
 #ifndef SEQ_SCC_H
 #define SEQ_SCC_H
 
-#include <stdlib.h>
-#include <stdlib.h>
 #include "graph.h"
 
 int scc(FILE* f, int **);
