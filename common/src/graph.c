@@ -11,10 +11,9 @@ graph* init_graph(FILE* f){
 	//get input data from mtx file
 	int N, nnz;
 
-
 	g->csc = (sparse *) malloc(sizeof(sparse));
 
-	read_mtx(f, &N, &nnz, &(g->csc->ptr), &(g->csc->ind));
+	read_mtx(f, &N, &nnz, &g->csc->ind, &g->csc->ptr);
 
 	g->n = N;
 	g->nnz = nnz;
