@@ -10,7 +10,7 @@ BIN_DIR = bin
 
 COMMON = ../common
 
-OUT = $(BIN_DIR)/opencilk_scc.out
+OUT = $(BIN_DIR)/opencilk_scc
 
 INC = -I $(INC_DIR) -I $(COMMON)/$(INC_DIR)
 
