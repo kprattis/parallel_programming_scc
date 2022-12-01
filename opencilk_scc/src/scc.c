@@ -40,7 +40,7 @@ int scc(FILE* f, int **SCC_arr){
 				g->colors[i] = i;
 		}
 
-		clock_gettime(CLOCK_REALTIME, &begin);
+		gettimeofday(&begin, 0);
 	
 			// perform BFS to push every node's color forward to 
 			// its neighbors until no color changes
@@ -50,13 +50,13 @@ int scc(FILE* f, int **SCC_arr){
 				changed_color = push_colors(g);
 			}
 		
-		clock_gettime(CLOCK_REALTIME, &end);
+		gettimeofday(&end, 0);
 		elapsed[0] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 		
 		//  First, find all unique colors and preallocate the scc Id of every group.
 		//  Next find the predecessors of the nodes whose color equals their id.
 		//  Each such group forms an scc with the appropriate Id. Remove them from the graph.
-		clock_gettime(CLOCK_REALTIME, &begin);
+		gettimeofday(&begin, 0);
 			
 			//Find unique colors
 			cilk_for(int i = 0; i < g->n; i++)
@@ -81,7 +81,7 @@ int scc(FILE* f, int **SCC_arr){
 			//are the "unique" nodes - whose color == their id.
 			pred(g, unique, n_scc);
 
-		clock_gettime(CLOCK_REALTIME, &end);
+		gettimeofday(&end, 0);
 		elapsed[1] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 
 

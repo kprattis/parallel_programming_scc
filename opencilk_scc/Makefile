@@ -1,6 +1,7 @@
 #Makefile for open_cilk
 
-CC = opt/opencilk/bin/clang
+#change this line to the path of the opencilk clang compiler
+CC = ~/Desktop/opt/opencilk/bin/clang
 
 INC_DIR = inc
 SRC_DIR = src

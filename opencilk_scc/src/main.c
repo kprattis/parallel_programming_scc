@@ -23,9 +23,9 @@ int main(int argc, char *argv[]){
 	int *scc_arr;
 	
     //calculate scc of the graph
-	clock_gettime(CLOCK_REALTIME, &begin);
+	gettimeofday(&begin, 0);
 		n_scc = scc(f, &scc_arr);
-	clock_gettime(CLOCK_REALTIME, &end);	
+	gettimeofday(&end, 0);	
     double elapsed = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 	
 	printf("OpenCilk: There are %d SCC in the graph %s, found in %lf seconds.\n", n_scc, argv[1], elapsed);
