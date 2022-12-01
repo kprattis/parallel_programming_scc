@@ -1,6 +1,6 @@
 #include "pthreads_scc.h"
 
-void trim(graph *g){
+void trim(){
     /*
         Performs "trimming" to the graph. Removes all trivial sccs
 

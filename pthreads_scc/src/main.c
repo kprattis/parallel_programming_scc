@@ -4,6 +4,16 @@
 #include "pthreads_scc.h"
 #include <pthread.h>
 
+//define external variables
+pthread_attr_t attr;
+pthread_mutex_t mut;
+pthread_cond_t available_thread;
+
+pthread_t *threads;
+
+param *args;
+
+
 int main(int argc, char *argv[]){
      if(argc != 2){
         printf("Usage: bin/seq_scc [Filename].mtx/n, ");
@@ -16,18 +26,13 @@ int main(int argc, char *argv[]){
 		printf("File %s not found\n", argv[1]); 
         exit(1);
     }
-	
-    //define external variables
-    pthread_attr_t attr;
-    pthread_mutex_t mut;
-    pthread_cond_t available_thread;
 
     pthread_mutex_init(&mut, NULL);
 	pthread_attr_init(&attr);
 	pthread_cond_init(&available_thread, NULL);
 
-    pthread_t *threads = (pthread *) malloc(NTHREADS * sizeof(pthread_t));
-    param *args = (param *) malloc(NTHREADS * sizeof(param));
+    threads = (pthread_t *) malloc(NTHREADS * sizeof(pthread_t));
+    args = (param *) malloc(NTHREADS * sizeof(param));
 
     // struct to save time
 	struct timespec begin, end; 
@@ -46,11 +51,8 @@ int main(int argc, char *argv[]){
 
     //free memory
     pthread_mutex_destroy(&mut);
-    free(mut);
     pthread_cond_destroy(&available_thread);
-    free(available_thread);
     pthread_attr_destroy(&attr);
-    free(attr);
     
     free(args);
     free(threads);    

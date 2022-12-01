@@ -7,11 +7,11 @@ BIN_DIR = bin
 
 COMMON = ../common
 
-OUT = $(BIN_DIR)/pthreads_scc.out
+OUT = $(BIN_DIR)/pthreads_scc
 
 INC = -I $(INC_DIR) -I $(COMMON)/$(INC_DIR)
 
-CFLAGS = -Wall -g -O3 -lpthreads $(INC)
+CFLAGS = -Wall -g -O3 -lpthread $(INC)
 
 CFILES = $(wildcard $(SRC_DIR)/*.c)
 CFILES_CMN = $(wildcard $(COMMON)/$(SRC_DIR)/*.c) 

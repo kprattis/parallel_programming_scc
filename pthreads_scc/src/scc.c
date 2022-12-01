@@ -4,6 +4,9 @@
 #include "pthreads_scc.h"
 #include <pthread.h>
 
+graph *g;
+
+
 int scc(FILE* f, int **SCC_arr){	
 	/*
 		Finds the sccs of a graph in .mtx format
@@ -22,7 +25,7 @@ int scc(FILE* f, int **SCC_arr){
 	double elapsed[2] = {0.0};
 
 	//init the graph
-	graph *g = init_graph(f);
+	g = init_graph(f);
 
 	int* n_scc = (int*) calloc(g->n, sizeof(int));
 	int* unique = (int*) calloc(g->n, sizeof(int));
@@ -37,8 +40,8 @@ int scc(FILE* f, int **SCC_arr){
 		
 		//init colors for all the remaining nodes as their id
 		for(int i = 0; i < NTHREADS; i++){
-			p[i].id = i;
-			pthread_create(&threads[i], &attr, init_colors, (void *)&p[i]);
+			args[i].id = i;
+			pthread_create(&threads[i], &attr, init_colors, (void *)&args[i]);
 		}
 
 		for(int i = 0; i < NTHREADS; i++){
@@ -53,9 +56,9 @@ int scc(FILE* f, int **SCC_arr){
 
 			while(changed_color){
 				for(int i = 0; i < NTHREADS; i++){
-					p[i].id = i;
-					p[i].flag = &changed_color;
-					pthread_create(&threads[i], &attr, push_colors, (void *)&p[i]);
+					args[i].id = i;
+					args[i].flag = &changed_color;
+					pthread_create(&threads[i], &attr, push_colors, (void *)&args[i]);
 				}
 
 				for(int i = 0; i < NTHREADS; i++){
@@ -74,9 +77,9 @@ int scc(FILE* f, int **SCC_arr){
 			
 			//Find unique colors
 			for(int i = 0; i < NTHREADS; i++){
-				p[i].id = i;
-				p[i].unique = &unique;
-				pthread_create(&threads[i], &attr, mark_unique, (void *)&p[i]);
+				args[i].id = i;
+				args[i].unique = &unique;
+				pthread_create(&threads[i], &attr, mark_unique, (void *)&args[i]);
 			}
 
 			for(int i = 0; i < NTHREADS; i++){
@@ -89,11 +92,11 @@ int scc(FILE* f, int **SCC_arr){
 			n_unique = 0;
 
 			for(int i = 0; i < NTHREADS; i++){
-				p[i].id = i;
-				p[i].unique = &unique;
-				p[i].n_scc = &n_scc;
-				p[i].n_unique = &n_unique;
-				pthread_create(&threads[i], &attr, n_scc_calc, (void *)&p[i]);
+				args[i].id = i;
+				args[i].unique = &unique;
+				args[i].n_scc = &n_scc;
+				args[i].n_unique = &n_unique;
+				pthread_create(&threads[i], &attr, n_scc_calc, (void *)&args[i]);
 			}
 
 			for(int i = 0; i < NTHREADS; i++){
@@ -103,7 +106,7 @@ int scc(FILE* f, int **SCC_arr){
 			
 			//Perform a backward BFS to form all sccs simultaneously. The initial "roots"
 			//are the "unique" nodes - whose color == their id.
-			pred(g, unique, n_scc);
+			pred(unique, n_scc);
 
 		clock_gettime(CLOCK_REALTIME, &end);
 		elapsed[1] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
