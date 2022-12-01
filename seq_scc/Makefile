@@ -1,3 +1,4 @@
+#Makefile for seq
 CC = gcc
 
 INC_DIR = inc

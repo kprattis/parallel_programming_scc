@@ -1,3 +1,5 @@
+#Makefile for omp_scc
+
 CC = gcc
 
 INC_DIR = inc

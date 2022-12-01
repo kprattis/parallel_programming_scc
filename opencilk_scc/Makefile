@@ -1,3 +1,5 @@
+#Makefile for open_cilk
+
 CC = opt/opencilk/bin/clang
 
 INC_DIR = inc
