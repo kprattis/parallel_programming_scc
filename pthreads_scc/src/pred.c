@@ -6,17 +6,60 @@ void pred(int* frontier, int* nscc){
 	int** temp;
 	int* next_frontier = (int*) calloc (g->n, sizeof(int));
 
-	for(int i = 0; i < g->n; i++){
-		if(frontier[i]){
+	//initialize frontier
+	for(int i = 0; i < NTHREADS; i++){
+		p[i].id = i;
+		p[i].unique = &frontier;
+		pthread_create(&threads[i], &attr, init_frontier, (void *)&p[i]);
+	}
+
+	for(int i = 0; i < NTHREADS; i++){
+		pthread_join(threads[i], NULL);
+	}
+	
+	//perform multiple root bfs
+    while(!frontier_is_empty){
+        frontier_is_empty = 1;
+
+		for(int i = 0; i < NTHREADS; i++){
+			p[i].id = i;
+			p[i].unique = &unique;
+			p[i].next_unique = &unique;
+			pthread_create(&threads[i], &attr, visit_parents, (void *)&p[i]);
+		}
+
+		for(int i = 0; i < NTHREADS; i++){
+			pthread_join(threads[i], NULL);
+		}
+
+		//swap pointers
+		temp = &frontier;
+		frontier = next_frontier;
+		next_frontier = *temp;
+
+	}
+	free(next_frontier);
+    
+}
+
+void *init_frontier(void *p){
+	int **frontier = ((param *)p)->unique;
+	int tid = ((param *)p)->id;
+
+	for(int i = tid; i < g->n; i += NTHREADS){
+		if((*frontier)[i]){
 			g->removed[i] = 1;
 			g->scc[i] = nscc[g->colors[i]];
 		}
 	}
-	
-    while(!frontier_is_empty){
-        frontier_is_empty = 1;
-        
-        for(int i = 0; i < g->n; i++){
+}
+
+void *visit_parents(void *p){
+	int **frontier = ((param *)p)->unique;
+	int **frontier = ((param *)p)->next_frontier;
+	int tid = ((param *)p)->id;
+
+	for(int i = tid; i < g->n; i += NTHREADS){
             if(frontier[i]){
 				frontier[i] = 0;
 				int start = g->csr->ptr[i];
@@ -38,12 +81,4 @@ void pred(int* frontier, int* nscc){
 				}
             }
         }
-
-		temp = &frontier;
-		frontier = next_frontier;
-		next_frontier = *temp;
-
-	}
-	free(next_frontier);
-    
 }

@@ -4,44 +4,41 @@
 #include "pthreads_scc.h"
 #include <pthread.h>
 
-void *mark_unique(void *p);
-void* init_colors(void* p);
-void *n_scc_calc(void *p);
-//void* do_work(void *);
+int scc(FILE* f, int **SCC_arr){	
+	/*
+		Finds the sccs of a graph in .mtx format
 
-int scc(FILE* f, int** SCC_arr){	
+		Input: 
+			FILE *f = .mtx file containing the graph
+			int** SCC_arr = address of array to store the calculated sccs
+
+		Output:
+			Returns the number of sccs
+	*/
+
 	
-	g = init_graph(f);
+	//structure to keep time for various parts of the algorithm
 	struct timespec begin, end; 
-	double elapsed[3] = {0.0}; //= (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
-	
-	pthread_t* threads = (pthread_t *)malloc(sizeof(pthread_t)*NTHREADS);
-	int front = 0;
-	int rear = NTHREADS - 1;
-	int activeThreads = 0;
+	double elapsed[2] = {0.0};
 
-	pthread_mutex_init(&mut, NULL);
-	pthread_attr_init(&attr);
-	pthread_cond_init(&available_thread, NULL);
-
-
-	param *p = (param *) malloc(sizeof(param)*NTHREADS);
+	//init the graph
+	graph *g = init_graph(f);
 
 	int* n_scc = (int*) calloc(g->n, sizeof(int));
 	int* unique = (int*) calloc(g->n, sizeof(int));
 	int n_unique;
+	int changed_color;
 	
-	clock_gettime(CLOCK_REALTIME, &begin);
-	trim(g);
-	clock_gettime(CLOCK_REALTIME, &end);
-	elapsed[0] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
-
+	
+	//trim the graph once to eliminate all trivial nodes
+	trim();
+	
 	while(!g->is_empty){
 		
-		printf("Now scc = %d\n", g->n_scc); 
+		//init colors for all the remaining nodes as their id
 		for(int i = 0; i < NTHREADS; i++){
 			p[i].id = i;
-			pthread_create(&threads[i], &attr, &init_colors, (void *)&p[i]);
+			pthread_create(&threads[i], &attr, init_colors, (void *)&p[i]);
 		}
 
 		for(int i = 0; i < NTHREADS; i++){
@@ -50,59 +47,69 @@ int scc(FILE* f, int** SCC_arr){
 
 		clock_gettime(CLOCK_REALTIME, &begin);
 	
-		int changed_color = 1;	
+			// perform BFS to push every node's color forward to 
+			// its neighbors until no color changes
+			changed_color = 1;	
 
-		while(changed_color){
-			changed_color = 0;
-		    for(int i = 0; i < NTHREADS; i++){
+			while(changed_color){
+				for(int i = 0; i < NTHREADS; i++){
+					p[i].id = i;
+					p[i].flag = &changed_color;
+					pthread_create(&threads[i], &attr, push_colors, (void *)&p[i]);
+				}
+
+				for(int i = 0; i < NTHREADS; i++){
+					pthread_join(threads[i], NULL);
+				}
+				
+			}
+		
+		clock_gettime(CLOCK_REALTIME, &end);
+		elapsed[0] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
+		
+		//  First, find all unique colors and preallocate the scc Id of every group.
+		//  Next find the predecessors of the nodes whose color equals their id.
+		//  Each such group forms an scc with the appropriate Id. Remove them from the graph.
+		clock_gettime(CLOCK_REALTIME, &begin);
+			
+			//Find unique colors
+			for(int i = 0; i < NTHREADS; i++){
 				p[i].id = i;
-				p[i].flag = &changed_color;
-				pthread_create(&threads[i], &attr, &push_colors, (void *)&p[i]);
+				p[i].unique = &unique;
+				pthread_create(&threads[i], &attr, mark_unique, (void *)&p[i]);
 			}
 
 			for(int i = 0; i < NTHREADS; i++){
 				pthread_join(threads[i], NULL);
 			}
-		}
+		
+			
+			//Count how many unique colors are there and assign an scc number (n_scc[i]) 
+			//for every such color.
+			n_unique = 0;
+
+			for(int i = 0; i < NTHREADS; i++){
+				p[i].id = i;
+				p[i].unique = &unique;
+				p[i].n_scc = &n_scc;
+				p[i].n_unique = &n_unique;
+				pthread_create(&threads[i], &attr, n_scc_calc, (void *)&p[i]);
+			}
+
+			for(int i = 0; i < NTHREADS; i++){
+				pthread_join(threads[i], NULL);
+			}
+
+			
+			//Perform a backward BFS to form all sccs simultaneously. The initial "roots"
+			//are the "unique" nodes - whose color == their id.
+			pred(g, unique, n_scc);
+
 		clock_gettime(CLOCK_REALTIME, &end);
 		elapsed[1] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
-		printf("Colored\n");
-		
-		/*  Find the predecessors of the nodes whose color equals their id.
-		    Each such group forms a scc. Remove them from the graph.*/
-		clock_gettime(CLOCK_REALTIME, &begin);
-		
-		for(int i = 0; i < NTHREADS; i++){
-			p[i].id = i;
-			p[i].unique = &unique;
-			pthread_create(&threads[i], &attr, &mark_unique, (void *)&p[i]);
-		}
 
 
-		for(int i = 0; i < NTHREADS; i++){
-			pthread_join(threads[i], NULL);
-		}
-		
-		n_unique = 0;
-		
-		for(int i = 0; i < NTHREADS; i++){
-			p[i].id = i;
-			p[i].unique = &unique;
-			p[i].n_scc = &n_scc;
-			p[i].n_unique = &n_unique;
-			pthread_create(&threads[i], &attr, &n_scc_calc, (void *)&p[i]);
-		}
-
-		for(int i = 0; i < NTHREADS; i++){
-			pthread_join(threads[i], NULL);
-		}
-
-		
-		pred(g, unique, n_scc);
-		
-		clock_gettime(CLOCK_REALTIME, &end);
-		elapsed[2] += (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
-
+		//check if all nodes are removed and prepare for the next iteration
 		g->is_empty = 1;
 		for(int i = 0; i < g->n; i++){
 			unique[i] = 0;
@@ -113,29 +120,32 @@ int scc(FILE* f, int** SCC_arr){
 			}
 		}
 		g->n_scc += n_unique;
+
     }
  	
-	printf("trim:%lf\n",elapsed[0]);
-	printf("color:%lf\n",elapsed[1]);
-	printf("pred:%lf\n",elapsed[2]);
+	//Print time statistics
+	printf("color:%lf\n",elapsed[0]);
+	printf("pred:%lf\n",elapsed[1]);
 
+	//Create return values
 	(* SCC_arr) = (int *) malloc(g->n * sizeof(int)); 
  	for(int i = 0; i < g->n; i++)
  		(*SCC_arr)[i] = g->scc[i];
  	
  	int NSCC = g->n_scc;
+
+	//free allocated memory
     free(f);
     free(n_scc);
-	free(p);
     free(unique);
     dealloc_graph(g);
-   return NSCC; 
+
+   	return NSCC; 
 }
 
-
 void *init_colors(void *p){
-	
 	int tid = ((param *) p )->id;
+	
 	for(int i = tid; i < g->n; i+= NTHREADS){
 		if(! g->removed[i])
 			g->colors[i] = i;
@@ -145,6 +155,7 @@ void *init_colors(void *p){
 void *mark_unique(void *p){
 	int **unique = ((param *)p)->unique;
 	int tid = ((param *)p)->id;
+	
 	for(int i = tid; i<g->n; i+=NTHREADS){
 		if(!g->removed[i])
 		(*unique)[g->colors[i]] = 1;
@@ -161,28 +172,10 @@ void *n_scc_calc(void *p){
 		if((*unique)[i]){
 			(* n_scc)[g->colors[i]] = g->n_scc + *n_unique;
 
-		pthread_mutex_lock(&mut);	
-			(*n_unique) ++;		
-		pthread_mutex_unlock(&mut);	
+			pthread_mutex_lock(&mut);	
+				(*n_unique) ++;		
+			pthread_mutex_unlock(&mut);	
 		
 		}
 	}	
 }
-
-/*
-void *do_work(void *args){
-	param *p = (param*) args;
-	task *t ;
-	param *A;
-	while(! *(p->work_done)){
-		printf("---------------------------------------------------------\n");
-		t = pop_task(p->q);
-		A = (param*) (t->args);
-		A->id = p->id;
-		//printf("I am thread %d and now I have node %d\n", p->id, A->node);
-		(* (t->function))((void*) A);
-		//printf("I am thread %d and now I return node %d\n", p->id,  A->node);
-	}
-	return p->g;
-}
-*/
