@@ -10,9 +10,12 @@ graph* init_graph(FILE* f){
 	
 	//get input data from mtx file
 	int N, nnz;
-	int *rows, *cols;
-	read_mtx(f, &N, &nnz, &rows, &cols);
-	
+
+
+	g->csc = (sparse *) malloc(sizeof(sparse));
+
+	read_mtx(f, &N, &nnz, &(g->csc->ptr), &(g->csc->ind));
+
 	g->n = N;
 	g->nnz = nnz;
 	
@@ -21,13 +24,6 @@ graph* init_graph(FILE* f){
 	g->csr = (sparse *) malloc(sizeof(sparse));
 	g->csr->ptr = (int *) calloc(g->n + 1, sizeof(int));
 	g->csr->ind = (int *) malloc(g->nnz * sizeof(int));
-
-	g->csc = (sparse *) malloc(sizeof(sparse));
-	g->csc->ptr = (int *) calloc(g->n + 1, sizeof(int));
-	g->csc->ind = (int *) malloc(g->nnz * sizeof(int));
-	
-	//transform to csc
-	coo2csc(rows, cols, g->csc, g->n, g->nnz);
 	
 	//transform to csr
 	csc2csr(g->csc, g->csr, g->n, g->nnz);
@@ -35,9 +31,6 @@ graph* init_graph(FILE* f){
 	g->removed = (int *) calloc(g->n, sizeof(int));
     g->colors = (int *) malloc(g->n * sizeof(int));
     g->scc = (int * ) malloc(g->n * sizeof(int));
-	
-	free(rows);
-	free(cols);
 
     return g;
 }

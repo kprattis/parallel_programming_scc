@@ -3,7 +3,7 @@
 
 //function to read mtx FILE
 //all other inputs are given as addresses of arrays
-//that will store the information read
+//that will store the information read in parse csc format
 
 void read_mtx(FILE*, int*, int* ,int**, int**);
 

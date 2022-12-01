@@ -3,7 +3,7 @@
 #include <read_mtx.h>
 #include <mmio.h>
 
-void read_mtx(FILE* f, int* N, int* nnz, int** rows, int** cols){
+void read_mtx(FILE* f, int* N, int* nnz, int** ind, int** ptr){
 	/*
 		Read the file f and save the matrix stored in coo format 
 	*/
@@ -20,15 +20,24 @@ void read_mtx(FILE* f, int* N, int* nnz, int** rows, int** cols){
     if ((ret_code = mm_read_mtx_crd_size(f, &M, N, nnz)) !=0){
         exit(1);
 	}
-    *rows = (int *) malloc((*nnz) * sizeof(int));
-    *cols = (int *) malloc((*nnz) * sizeof(int));
+    *ind = (int *) malloc((*nnz) * sizeof(int));
+    *ptr = (int *) malloc((*N + 1) * sizeof(int));
 
+	int row, col, count;
 	double temp;
+
+	count = 0;
+	(*ptr)[0] = 0;
+
 	if(!mm_is_pattern(matcode)){
+
 		for (int i = 0; i < *nnz; i++){
-		    fscanf(f, "%d %d %lg\n", &((*rows)[i]), &((*cols)[i]), &temp);
-		    (*rows)[i]--;  /* adjust from 1-based to 0-based */
-		    (*cols)[i]--;
+		    fscanf(f, "%d %d %lg\n", &row, &col, &temp);
+		    (*ind)[i] = row - 1;  /* adjust from 1-based to 0-based */
+			if( (col - 1) != (*ptr)[count]){
+		    	count = count + 1;
+				(*ptr)[count] = i;
+			}
 		}
 	
 	}
@@ -36,9 +45,12 @@ void read_mtx(FILE* f, int* N, int* nnz, int** rows, int** cols){
 	else{
 			
 		for (int i = 0; i < *nnz; i++){
-		    fscanf(f, "%d %d\n", &((*rows)[i]), &((*cols)[i]));
-		    (*rows)[i]--;  /* adjust from 1-based to 0-based */
-		    (*cols)[i]--;
+		    fscanf(f, "%d %d %lg\n", &row, &col);
+		    (*ind)[i] = row - 1;  /* adjust from 1-based to 0-based */
+			if( (col - 1) != (*ptr)[count]){
+		    	count = count + 1;
+				(*ptr)[count] = i;
+			}
 		}
 	}
 }
