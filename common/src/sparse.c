@@ -1,5 +1,4 @@
 #include "sparse.h"
-#include<stdio.h>
 
 void coo2csc(int *rows, int *cols, sparse *adj, int n, int nnz){
 	//assumes sorted cols	
@@ -19,6 +18,8 @@ void coo2csc(int *rows, int *cols, sparse *adj, int n, int nnz){
 }
 
 void csc2csr(sparse *csc, sparse *csr, int n, int nnz){	
+	
+	//count rows
 	for(int i = 0; i < nnz; i++){			
 		csr->ptr[csc->ind[i]] ++;
 	}
@@ -33,7 +34,8 @@ void csc2csr(sparse *csc, sparse *csr, int n, int nnz){
 		
 	}
 	csr->ptr[n] = nnz;
-		
+	
+	//fill ind
 	int row, dest;
 	for(int i = 0; i < n; i++){
 		for(int j = csc->ptr[i]; j < csc->ptr[i + 1]; j++){				
@@ -44,6 +46,7 @@ void csc2csr(sparse *csc, sparse *csr, int n, int nnz){
 		}
 	}
 
+	//shift ptr to correct form
 	int last = 0;
 	for(int i = 0; i < (n + 1); i++){
 		temp = csr->ptr[i];

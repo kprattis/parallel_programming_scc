@@ -7,9 +7,12 @@
 graph* init_graph(FILE* f){
     graph *g = (graph *) malloc(sizeof(graph));
     g->n_scc = 0;
-    	int N, nnz;
-    	int *rows, *cols;
+	
+	//get input data from mtx file
+	int N, nnz;
+	int *rows, *cols;
 	read_mtx(f, &N, &nnz, &rows, &cols);
+	
 	g->n = N;
 	g->nnz = nnz;
 	
@@ -23,8 +26,10 @@ graph* init_graph(FILE* f){
 	g->csc->ptr = (int *) calloc(g->n + 1, sizeof(int));
 	g->csc->ind = (int *) malloc(g->nnz * sizeof(int));
 	
+	//transform to csc
 	coo2csc(rows, cols, g->csc, g->n, g->nnz);
 	
+	//transform to csr
 	csc2csr(g->csc, g->csr, g->n, g->nnz);
 
 	g->removed = (int *) calloc(g->n, sizeof(int));

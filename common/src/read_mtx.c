@@ -4,6 +4,10 @@
 #include <mmio.h>
 
 void read_mtx(FILE* f, int* N, int* nnz, int** rows, int** cols){
+	/*
+		Read the file f and save the matrix stored in coo format 
+	*/
+
 	MM_typecode matcode;
 	int ret_code;
     if (mm_read_banner(f, &matcode) != 0)
