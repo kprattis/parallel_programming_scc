@@ -1,6 +1,6 @@
 #include "omp_scc.h"
 
-void trim(graph *g){
+int trim(graph *g){
     /*
         Performs "trimming" to the graph. Removes all trivial sccs
 
@@ -10,6 +10,8 @@ void trim(graph *g){
 
     int changed = 1;
     
+    int n_removed = 0;
+
     //trim unti no more trivial sccs exist
     while(changed){
         changed = 0;
@@ -31,7 +33,9 @@ void trim(graph *g){
     		    g->scc[i] = g->n_scc;
                 g->n_scc ++;
                 changed = 1;
+                n_removed ++;
             }
         }
     }
+    return n_removed;
 }

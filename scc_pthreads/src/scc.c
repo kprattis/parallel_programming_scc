@@ -25,7 +25,10 @@ int scc(FILE* f, int **SCC_arr){
 	double elapsed[2] = {0.0};
 
 	//init the graph
-	g = init_graph(f);
+	int n_trimmed = trim();
+	
+	g->is_empty = (n_trimmed == g->n);
+
 
 	int* n_scc = (int*) calloc(g->n, sizeof(int));
 	int* unique = (int*) calloc(g->n, sizeof(int));

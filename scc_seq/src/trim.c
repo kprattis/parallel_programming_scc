@@ -1,14 +1,17 @@
 #include "seq_scc.h"
 
-void trim(graph *g){
+int trim(graph *g){
     /*
         Performs "trimming" to the graph. Removes all trivial sccs
 
         Input: graph *g
 
+        Output: nodes_trimmed
+
     */
 
     int changed = 1;
+    int n_trimmed = 0;
     
     //trim unti no more trivial sccs exist
     while(changed){
@@ -31,7 +34,10 @@ void trim(graph *g){
     		    g->scc[i] = g->n_scc;
                 g->n_scc ++;
                 changed = 1;
+                n_trimmed ++;
             }
         }
     }
+    
+    return n_trimmed;
 }

@@ -1,6 +1,6 @@
 #include "pthreads_scc.h"
 
-void trim(){
+int trim(){
     /*
         Performs "trimming" to the graph. Removes all trivial sccs
 
@@ -10,6 +10,8 @@ void trim(){
 
     int changed = 1;
     
+    int n_trimmed = 0;
+
     //trim unti no more trivial sccs exist
     while(changed){
         changed = 0;
@@ -31,7 +33,9 @@ void trim(){
     		    g->scc[i] = g->n_scc;
                 g->n_scc ++;
                 changed = 1;
+                n_trimmed ++;
             }
         }
     }
+    return n_trimmed;
 }

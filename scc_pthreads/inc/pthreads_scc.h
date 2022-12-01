@@ -38,7 +38,7 @@ void pred(int *frontier, int *n_scc);
 
 void *push_colors(void *);
 
-void trim(void);
+int trim(void);
 
 //extra functions to be used for pthreads
 void *mark_unique(void *p);

@@ -29,8 +29,9 @@ int scc(FILE* f, int **SCC_arr){
 	
 	
 	//trim the graph once to eliminate all trivial nodes
-	trim(g);
+	int n_trimmed = trim(g);
 	
+	g->is_empty = (n_trimmed == g->n);
 
 	while(!g->is_empty){
 		

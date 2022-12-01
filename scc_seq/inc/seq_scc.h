@@ -9,6 +9,6 @@ void pred(graph *g, int* frontier, int* nscc);
 
 int push_colors(graph *g);
 
-void trim(graph *g);
+int trim(graph *g);
 
 #endif
