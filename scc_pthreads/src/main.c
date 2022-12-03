@@ -34,6 +34,7 @@ int main(int argc, char *argv[]){
     threads = (pthread_t *) malloc(NTHREADS * sizeof(pthread_t));
     args = (param *) malloc(NTHREADS * sizeof(param));
 
+
     // struct to save time
 	struct timespec begin, end; 
 	
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]){
 		n_scc = scc(f, &scc_arr);
 	clock_gettime(CLOCK_REALTIME, &end);	
     double elapsed = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
-	
+    
 	printf("Pthreads: There are %d SCC in the graph %s, found in %lf seconds.\n", n_scc, argv[1], elapsed);
 
     //free memory

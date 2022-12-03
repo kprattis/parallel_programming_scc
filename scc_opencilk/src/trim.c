@@ -1,6 +1,6 @@
 #include "cilk_scc.h"
 
-void trim(graph *g){
+int trim(graph *g){
     /*
         Performs "trimming" to the graph. Removes all trivial sccs
 

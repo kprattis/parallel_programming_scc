@@ -24,12 +24,12 @@ int scc(FILE* f, int **SCC_arr){
 	struct timespec begin, end; 
 	double elapsed[2] = {0.0};
 
-	//init the graph
-	int n_trimmed = trim();
+
 	
-	g->is_empty = (n_trimmed == g->n);
-
-
+	//init the graph
+	g = init_graph(f);
+	
+	
 	int* n_scc = (int*) calloc(g->n, sizeof(int));
 	int* unique = (int*) calloc(g->n, sizeof(int));
 	int n_unique;
@@ -37,8 +37,10 @@ int scc(FILE* f, int **SCC_arr){
 	
 	
 	//trim the graph once to eliminate all trivial nodes
-	trim();
+	int n_trimmed = trim();
 	
+	g->is_empty = (n_trimmed == g->n);
+
 	while(!g->is_empty){
 		
 		//init colors for all the remaining nodes as their id
