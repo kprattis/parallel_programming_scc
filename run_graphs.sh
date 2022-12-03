@@ -1,8 +1,9 @@
-
+#=================================================
 folders=("seq" "omp" "opencilk" "pthreads")
 
 res_name=~/Desktop/results
-
+graph_folder=~/Desktop/graphs/
+#=================================================
 
 res=$res_name".txt"
 
@@ -13,7 +14,12 @@ for f in ${folders[@]};do
 	cd ..
 done
 
-graphs=$(find ~/Desktop/graphs/ -name "*.mtx")
+graphs=$(find $graph_folder -name "*.mtx")
+
+if [$# -ne 1]; 
+    then graphs="$graph_folder""$1"".mtx"
+fi
+
  
 echo "graph, seq color time, seq pred time, seq total time, seq nscc, omp color time, omp pred time, omp total time, omp nscc, opencilk color time, opencilk pred time, opencilk total time, opencilk nscc, pthreads color time, pthreads pred time, pthreads total time, pthreads nscc" > "$res"
 
