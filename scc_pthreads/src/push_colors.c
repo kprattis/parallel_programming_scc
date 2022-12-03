@@ -7,8 +7,6 @@ void *push_colors(void *p){
     int *changed_color = ((param *) p)->flag;
     int tid = ((param *) p)->id;
 
-    *changed_color = 0;
-
     for(int i = tid; i < g->n; i += NTHREADS){
         if(g->removed[i])
             continue;

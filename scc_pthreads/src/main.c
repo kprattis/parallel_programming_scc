@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
 	clock_gettime(CLOCK_REALTIME, &end);	
     double elapsed = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
     
-	printf("Pthreads: There are %d SCC in the graph %s, found in %lf seconds.\n", n_scc, argv[1], elapsed);
+	printf("%lf, %d",elapsed, n_scc);
 
     //free memory
     pthread_mutex_destroy(&mut);

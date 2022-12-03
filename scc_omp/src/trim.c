@@ -24,8 +24,8 @@ int trim(graph *g){
             int out_deg = g->csc->ptr[i + 1] - g->csc->ptr[i];
             
             //The first neighbor to be used to check the case of a selflooop
-            int first_neigh_in = g->csr->ptr[i];
-            int first_neigh_out = g->csc->ptr[i];
+            int first_neigh_in = g->csr->ind[g->csr->ptr[i]];
+            int first_neigh_out = g->csc->ind[g->csc->ptr[i]];
 
             //remove the node if it is a trivial scc
             if((in_deg == 0 || out_deg == 0) || (in_deg == 1 && first_neigh_in == i) || (out_deg == 1 && first_neigh_out == i)){

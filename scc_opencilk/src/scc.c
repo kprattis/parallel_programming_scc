@@ -101,8 +101,8 @@ int scc(FILE* f, int **SCC_arr){
     }
  	
 	//Print time statistics
-	printf("color:%lf\n",elapsed[0]);
-	printf("pred:%lf\n",elapsed[1]);
+	printf("%lf, ",elapsed[0]);
+	printf("%lf, ",elapsed[1]);
 
 	//Create return values
 	(* SCC_arr) = (int *) malloc(g->n * sizeof(int)); 

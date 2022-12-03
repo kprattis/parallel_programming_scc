@@ -6,7 +6,6 @@
 
 graph *g;
 
-
 int scc(FILE* f, int **SCC_arr){	
 	/*
 		Finds the sccs of a graph in .mtx format
@@ -58,8 +57,11 @@ int scc(FILE* f, int **SCC_arr){
 			// perform BFS to push every node's color forward to 
 			// its neighbors until no color changes
 			changed_color = 1;	
-
+		
 			while(changed_color){
+				
+				//changed_color = push_colors_seq(g);
+				changed_color = 0;
 				for(int i = 0; i < NTHREADS; i++){
 					args[i].id = i;
 					args[i].flag = &changed_color;
@@ -95,7 +97,7 @@ int scc(FILE* f, int **SCC_arr){
 			//Count how many unique colors are there and assign an scc number (n_scc[i]) 
 			//for every such color.
 			n_unique = 0;
-
+			
 			for(int i = 0; i < NTHREADS; i++){
 				args[i].id = i;
 				args[i].unique = &unique;
@@ -107,10 +109,10 @@ int scc(FILE* f, int **SCC_arr){
 			for(int i = 0; i < NTHREADS; i++){
 				pthread_join(threads[i], NULL);
 			}
-
 			
 			//Perform a backward BFS to form all sccs simultaneously. The initial "roots"
 			//are the "unique" nodes - whose color == their id.
+			
 			pred(unique, n_scc);
 
 		clock_gettime(CLOCK_REALTIME, &end);
@@ -119,21 +121,25 @@ int scc(FILE* f, int **SCC_arr){
 
 		//check if all nodes are removed and prepare for the next iteration
 		g->is_empty = 1;
-		for(int i = 0; i < g->n; i++){
-			unique[i] = 0;
-			n_scc[i] = 0;
-			if(!g->removed[i]){
-				g->is_empty = 0;
-				
+		for(int i = 0; i < NTHREADS; i++){
+				args[i].id = i;
+				args[i].unique = &unique;
+				args[i].n_scc = &n_scc;
+
+				pthread_create(&threads[i], &attr, prepare_iter, (void *)&args[i]);
 			}
+
+		for(int i = 0; i < NTHREADS; i++){
+			pthread_join(threads[i], NULL);
 		}
+		
 		g->n_scc += n_unique;
 
     }
  	
 	//Print time statistics
-	printf("color:%lf\n",elapsed[0]);
-	printf("pred:%lf\n",elapsed[1]);
+	printf("%lf, ",elapsed[0]);
+	printf("%lf, ",elapsed[1]);
 
 	//Create return values
 	(* SCC_arr) = (int *) malloc(g->n * sizeof(int)); 
@@ -186,4 +192,18 @@ void *n_scc_calc(void *p){
 		
 		}
 	}	
+}
+
+void *prepare_iter(void *p){
+	int **unique = ((param *)p)->unique;
+	int **n_scc = ((param *)p)->n_scc;
+	int tid = ((param *)p)->id;
+	
+	for(int i = tid; i<g->n; i+=NTHREADS){
+		(*unique)[i] = 0;
+		(*n_scc)[i] = 0;
+		if(!g->removed[i]){
+			g->is_empty = 0;
+		}
+	}
 }

@@ -44,6 +44,7 @@ int trim(void);
 void *mark_unique(void *p);
 void* init_colors(void* p);
 void *n_scc_calc(void *p);
+void *prepare_iter(void *p);
 
 void *init_frontier(void *p);
 void *visit_parents(void *p);

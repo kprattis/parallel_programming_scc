@@ -1,7 +1,10 @@
 
 folders=("seq" "omp" "opencilk" "pthreads")
 
-results = "~/Desktop/results.txt"
+res_name=~/Desktop/results
+
+
+res=$res_name".txt"
 
 for f in ${folders[@]};do
 	cd "scc_"$f
@@ -10,10 +13,24 @@ for f in ${folders[@]};do
 	cd ..
 done
 
-echo "" > $results
+graphs=$(find ~/Desktop/graphs/ -name "*.mtx")
+ 
+echo "graph, seq color time, seq pred time, seq total time, seq nscc, omp color time, omp pred time, omp total time, omp nscc, opencilk color time, opencilk pred time, opencilk total time, opencilk nscc, pthreads color time, pthreads pred time, pthreads total time, pthreads nscc" > "$res"
 
-for b in ${folders[@]};do
-	cd "scc_"$b
-	find ~/Desktop/graphs/ -name "*.mtx" |xargs -I {} bin/$b"_scc" {} >> $results 
-	cd ..
+for g in ${graphs[@]};do
+	
+	name=$(basename $g ".mtx")
+	
+	echo "Now processing graph $name"
+	echo -n "$name, " >> $res
+	
+	for f in ${folders[@]};do
+		cd "scc_"$f
+		bin/$f"_scc" $g >> "$res"
+		cd ..
+	done
+	
+	echo "" >> $res
 done
+
+mv "$res_name.txt" "$res_name.csv"

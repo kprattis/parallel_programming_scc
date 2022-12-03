@@ -82,7 +82,7 @@ void *visit_parents(void *p){
 						
 					if(g->colors[parent] == g->colors[i]){
 						g->removed[parent] = 1;
-						g->scc[parent] = (*nscc)[g->colors[i]];
+						g->scc[parent] = (*nscc)[g->colors[parent]];
 						(*next_frontier)[parent] = 1;
 						*frontier_is_empty = 0;
 					}

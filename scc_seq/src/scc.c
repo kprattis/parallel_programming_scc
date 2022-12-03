@@ -35,7 +35,7 @@ int scc(FILE* f, int **SCC_arr){
 	g->is_empty = (n_trimmed == g->n);
 
 	while(!g->is_empty){
-		
+
 		//init colors for all the remaining nodes as their id
 		for(int i = 0; i < g->n; i++){
 			if(!g->removed[i])
@@ -94,13 +94,14 @@ int scc(FILE* f, int **SCC_arr){
 				
 			}
 		}
+
 		g->n_scc += n_unique;
 
     }
  	
 	//Print time statistics
-	printf("color:%lf\n",elapsed[0]);
-	printf("pred:%lf\n",elapsed[1]);
+	printf("%lf, ",elapsed[0]);
+	printf("%lf, ",elapsed[1]);
 
 	//Create return values
 	(* SCC_arr) = (int *) malloc(g->n * sizeof(int)); 
