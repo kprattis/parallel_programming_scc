@@ -43,6 +43,7 @@ void pred(int* frontier, int* nscc){
 		next_frontier = *temp;
 
 	}
+	
 	free(next_frontier);
     
 }

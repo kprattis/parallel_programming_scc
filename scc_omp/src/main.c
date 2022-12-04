@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "omp_scc.h"
 
 int main(int argc, char *argv[]){
-    if(argc != 2){
+    if(argc < 2){
         printf("Usage: bin/seq_scc [Filename].mtx/n, ");
         printf("where [Filename] is the name of the .mtx file containing the graph.\n");
         exit(1);
@@ -15,6 +16,10 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 	
+    if(argc == 3){
+        omp_set_num_threads(atoi(argv[2]));
+    }
+
     // struct to save time
 	struct timespec begin, end; 
 	

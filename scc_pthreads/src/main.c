@@ -7,15 +7,15 @@
 //define external variables
 pthread_attr_t attr;
 pthread_mutex_t mut;
-pthread_cond_t available_thread;
 
 pthread_t *threads;
 
 param *args;
 
+int NTHREADS;
 
 int main(int argc, char *argv[]){
-     if(argc != 2){
+     if(argc < 2){
         printf("Usage: bin/seq_scc [Filename].mtx/n, ");
         printf("where [Filename] is the name of the .mtx file containing the graph.\n");
         exit(1);
@@ -27,13 +27,19 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
+    NTHREADS = 12;
+    
+    if(argc == 3){
+        NTHREADS = atoi(argv[2]);   
+    }
+
     pthread_mutex_init(&mut, NULL);
 	pthread_attr_init(&attr);
-	pthread_cond_init(&available_thread, NULL);
 
     threads = (pthread_t *) malloc(NTHREADS * sizeof(pthread_t));
     args = (param *) malloc(NTHREADS * sizeof(param));
 
+    
 
     // struct to save time
 	struct timespec begin, end; 
@@ -52,7 +58,6 @@ int main(int argc, char *argv[]){
 
     //free memory
     pthread_mutex_destroy(&mut);
-    pthread_cond_destroy(&available_thread);
     pthread_attr_destroy(&attr);
     
     free(args);

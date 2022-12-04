@@ -4,7 +4,8 @@
 #include "graph.h"
 #include <pthread.h>
 
-#define NTHREADS 12
+
+extern int NTHREADS;
 
 //to be used in order to 
 //pass the parameters to 
@@ -19,13 +20,13 @@ typedef struct{
     int **next_frontier;
 }param;
 
+
 //for easier to read code, g is a universal variable
 extern graph* g;
 
 //pthread variables
 extern pthread_attr_t attr;
 extern pthread_mutex_t mut;
-extern pthread_cond_t available_thread;
 
 extern pthread_t *threads;
 
