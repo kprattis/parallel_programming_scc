@@ -23,9 +23,9 @@ int main(int argc, char *argv[]){
 	int *scc_arr;
 	
     //calculate scc of the graph
-	gettimeofday(&begin, 0);
+	clock_gettime(CLOCK_REALTIME, &begin);
 		n_scc = scc(f, &scc_arr);
-	gettimeofday(&end, 0);	
+	clock_gettime(CLOCK_REALTIME, &end);	
     double elapsed = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)*1e-9;
 	
 	printf("%lf, %d, ",elapsed, n_scc);
