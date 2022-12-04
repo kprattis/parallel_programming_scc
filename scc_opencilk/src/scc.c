@@ -3,6 +3,7 @@
 #include "cilk_scc.h"
 #include "cilk/cilk.h"
 #include "cilk/cilk_api.h"
+#include <time.h>
 
 int scc(FILE* f, int **SCC_arr){	
 	/*
