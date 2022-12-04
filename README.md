@@ -4,4 +4,4 @@
 
 * Download Repository and cd to a folder. Then run "make" at command line to create the binary file at "bin" subfolder of the current.
 
-* E.g. in folder omp_scc : bin/scc_omp (.mtx path) (OPTIONAL: nthreads)
+* E.g. in folder omp_scc : **bin/scc_omp (.mtx path) (OPTIONAL: nthreads)**
