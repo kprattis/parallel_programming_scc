@@ -1,5 +1,6 @@
 #include "cilk_scc.h"
 #include "cilk/cilk.h"
+#include "cilk/cilk_api.h"
 #include <stdlib.h>
 
 void pred(graph *g, int *frontier, int *nscc){
@@ -17,6 +18,12 @@ void pred(graph *g, int *frontier, int *nscc){
 	
 	*/
 
+	int p = __cilkrts_get_nworkers();
+    int pid;  
+
+    //array of flags, so that every cilk worker writes its own result without races
+    int* p_flags = (int*) calloc (p,  sizeof(int));
+
     int frontier_is_empty = 0;
 	int **temp;
 	int *next_frontier = (int*) calloc (g->n, sizeof(int));
@@ -32,6 +39,9 @@ void pred(graph *g, int *frontier, int *nscc){
     while(!frontier_is_empty){
         frontier_is_empty = 1;
         
+		cilk_for(int i = 0; i < p; i++)
+    		p_flags[i] = 0;
+
 		//Loop over the nodes
         cilk_for(int i = 0; i < g->n; i++)
 			//If the node is in the frontier
@@ -49,6 +59,8 @@ void pred(graph *g, int *frontier, int *nscc){
 					if(g->removed[parent])
 						continue;
 					
+					pid = __cilkrts_get_worker_number();
+
 					//If the parent has the same color as the current node
 					if(g->colors[parent] == g->colors[i]){
 						//Remove it from the graph
@@ -59,10 +71,21 @@ void pred(graph *g, int *frontier, int *nscc){
 						
 						//Update the frontier of the next iteration
 						next_frontier[parent] = 1;
-						frontier_is_empty = 0;
+						
+						p_flags[pid] = 1;
+						//frontier_is_empty = 0;
 					}
 				}
             }
+
+		//gather flags of workers
+		for(int i = 0; i < p; i++)
+    		if(p_flags[i]){
+            	frontier_is_empty = 0;
+				//if at least one worker's flag has changed
+				break;
+        	}
+
         
 		//swap the pointers of the next and the current frontier
 		temp = &frontier;
@@ -73,5 +96,6 @@ void pred(graph *g, int *frontier, int *nscc){
 
 	//free memory
 	free(next_frontier);
+	free(p_flags);
     
 }

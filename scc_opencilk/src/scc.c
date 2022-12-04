@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "cilk_scc.h"
 #include "cilk/cilk.h"
+#include "cilk/cilk_api.h"
 
 int scc(FILE* f, int **SCC_arr){	
 	/*
@@ -14,6 +15,11 @@ int scc(FILE* f, int **SCC_arr){
 		Output:
 			Returns the number of sccs
 	*/
+	int p = __cilkrts_get_nworkers();
+    int pid;  
+
+    //array of flags, so that every cilk worker writes its own result without races
+    int* p_flags = (int*) calloc (p,  sizeof(int));
 
 	//structure to keep time for various parts of the algorithm
 	struct timespec begin, end; 
@@ -60,7 +66,7 @@ int scc(FILE* f, int **SCC_arr){
 		gettimeofday(&begin, 0);
 			
 			//Find unique colors
-			cilk_for(int i = 0; i < g->n; i++)
+			for(int i = 0; i < g->n; i++)
 				if(!g->removed[i])
 					unique[g->colors[i]] = 1;
 		
@@ -91,11 +97,24 @@ int scc(FILE* f, int **SCC_arr){
 		cilk_for(int i = 0; i < g->n; i++){
 			unique[i] = 0;
 			n_scc[i] = 0;
+			pid = __cilkrts_get_worker_number();
 			if(!g->removed[i]){
-				g->is_empty = 0;
+				//raise flag that a node that is not removed was found
+				p_flags[pid] = 1;
 				
 			}
 		}
+
+		//join every worker's result from the flag array to the g->is_empty variable
+    	for(int i = 0; i < p; i++){
+    		if(p_flags[i]){
+            	g->is_empty = 0;
+				//if at least one worker's flag has changed
+				
+        	}
+			p_flags[i] = 0;
+		}
+
 		g->n_scc += n_unique;
 
     }
@@ -113,6 +132,7 @@ int scc(FILE* f, int **SCC_arr){
 
 	//free allocated memory
     free(f);
+	free(p_flags);
     free(n_scc);
     free(unique);
     dealloc_graph(g);
