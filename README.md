@@ -1,6 +1,6 @@
 ##### _Finding the Strongly Connected Components of the graph in a shared memory multiprocessor_
 
-Created in Linux Ubuntu 22.04.
+Created in Linux Ubuntu 22.04 dual boot with Windows.
 Processor: 
 
 	AMD Ryzen 5 5600H with Radeon Graphics 
